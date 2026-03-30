@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The AI University | FY-2026 Pitch Deck</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Premium, subtle futuristic palette */
+            --primary-blue: #00a8e8;
+            --primary-purple: #8e44ad;
+            --accent-teal: #00cea0;
+            --dark-bg: #07090f;
+            --glass-bg: rgba(15, 18, 25, 0.45);
+            --glass-border: rgba(0, 168, 232, 0.15);
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 168, 232, 0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 168, 232, 0.6);
+        }
+
+        /* Canvas Background */
+        #neuronCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            background: radial-gradient(circle at center, #0a0e17 0%, var(--dark-bg) 100%);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+
+        /* Subtle Glow Effects */
+        .text-glow-blue { text-shadow: 0 0 15px rgba(0, 168, 232, 0.4); color: var(--primary-blue); }
+        .text-glow-purple { text-shadow: 0 0 15px rgba(142, 68, 173, 0.4); color: var(--primary-purple); }
+        
+        /* Premium Glass UI */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.03), transparent);
+            transform: skewX(-25deg);
+            animation: shine 8s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
+        }
+
+        .glass-panel:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            border-color: rgba(0, 168, 232, 0.4);
+        }
+
+        /* Audio Toggle */
+        #audio-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0, 168, 232, 0.1);
+            border: 1px solid rgba(0, 168, 232, 0.3);
+            color: var(--primary-blue);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        #audio-toggle:hover {
+            background: rgba(0, 168, 232, 0.2);
+            box-shadow: 0 0 15px rgba(0, 168, 232, 0.4);
+        }
+        #audio-toggle.active {
+            background: rgba(0, 206, 160, 0.1);
+            border-color: rgba(0, 206, 160, 0.4);
+            color: var(--accent-teal);
+        }
+
+        /* Layout & Typography */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 6rem 0;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s ease-out, transform 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            position: relative;
+        }
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff, var(--primary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 750px;
+            margin: 0 auto 3.5rem auto;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        /* Grid Layouts */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .grid-2-inner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Metric Cards */
+        .metric-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin: 1rem 0;
+        }
+        
+        .metric-subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Graph Container */
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-top: 2rem;
+        }
+
+        /* Navigation Dots (Motion indicator) */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 5vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 26px;
+            height: 42px;
+            border: 2px solid rgba(0, 168, 232, 0.4);
+            border-radius: 13px;
+        }
+        .scroll-indicator::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 8px;
+            background: var(--primary-blue);
+            border-radius: 2px;
+            animation: scroll 2s infinite cubic-bezier(0.15, 0.41, 0.69, 0.94);
+        }
+
+        @keyframes scroll {
+            0% { top: 6px; opacity: 1; }
+            100% { top: 24px; opacity: 0; }
+        }
+
+        /* Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            min-width: 600px;
+        }
+        th, td {
+            padding: 1.25rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 1.1rem;
+        }
+        th {
+            color: var(--primary-purple);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+        td {
+            color: var(--text-muted);
+        }
+        td:first-child {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        /* MOBILE RESPONSIVENESS */
+        @media (max-width: 768px) {
+            .container { padding: 0 1.5rem; }
+            section { padding: 4rem 0; min-height: auto; margin-bottom: 2rem; }
+            .hero { padding-top: 8rem; } /* Account for absolute audio toggle */
+            .hero h1 { font-size: 2.8rem; }
+            .hero p { font-size: 1.05rem; margin-bottom: 2rem; }
+            
+            .grid-2 { grid-template-columns: 1fr; gap: 2rem; }
+            .grid-2-inner { grid-template-columns: 1fr; gap: 1rem; }
+            .grid-3 { grid-template-columns: 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+            
+            .glass-panel { padding: 1.5rem; }
+            .metric-value { font-size: 2rem; }
+            
+            #audio-toggle { top: 10px; right: 10px; padding: 6px 12px; font-size: 0.7rem; }
+            
+            .chart-container { height: 300px; }
+            
+            h2.text-glow-blue, h2.text-glow-purple { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Audio Toggle -->
+    <button id="audio-toggle">AUDIO: INITIALIZE</button>
+
+    <!-- Parallax Neuron Canvas -->
+    <canvas id="neuronCanvas"></canvas>
+
+    <div class="container">
+        <section class="hero visible" id="home">
+            <h3 class="text-glow-blue" style="margin-bottom: 1.2rem; font-size: 1rem; font-family: 'Inter', sans-serif; letter-spacing: 3px;">PROJECT FY-2026</h3>
+            <h1>THE AI UNIVERSITY</h1>
+            <p>A state-of-the-art educational institution in New Delhi. Developing the next generation of AI Engineers through an immersive, high-velocity curriculum designed for unmatched industry outcomes and high-margin unit economics.</p>
+            
+            <div class="glass-panel" style="display: inline-block; padding: 1.5rem 3rem; margin: 0 auto; width: auto; max-width: 100%;">
+                <h2 style="font-size: 1.2rem; color: var(--text-muted); font-family: 'Inter', sans-serif; letter-spacing: 1px;">CORE OBJECTIVE</h2>
+                <p style="font-size: 1.2rem; color: var(--primary-blue); font-weight: 600; margin-top: 0.5rem; font-family: 'Orbitron', sans-serif;">Student &rarr; Industry-Ready AI Engineer</p>
+            </div>
+            
+            <div class="scroll-indicator" style="display: none;"></div> <!-- Hidden on mobile via JS, visible on desktop -->
+        </section>
+
+        <section id="architecture">
+            <h2 class="text-glow-blue" style="font-size: 2.5rem; margin-bottom: 1rem;">SYSTEM ARCHITECTURE</h2>
+            <p style="font-size: 1.2rem; color: var(--text-muted);">Optimized infrastructure designed for maximum throughput and efficient asset utilization.</p>
+            
+            <div class="grid-3">
+                <div class="glass-panel interactive">
+                    <h3 style="color: #fff; font-size: 1.2rem;">Hardware Nodes</h3>
+                    <div class="metric-value">90</div>
+                    <p class="metric-subtitle">High-performance workstations dedicated to heavy AI workloads and local model training. Estimated at ₹90k per unit.</p>
+                </div>
+                <div class="glass-panel interactive">
+                    <h3 style="color: #fff; font-size: 1.2rem;">Daily Cohorts</h3>
+                    <div class="metric-value">3</div>
+                    <p class="metric-subtitle">Operating continuously across Morning, Afternoon, and Evening batches to maximize physical footprint ROI.</p>
+                </div>
+                <div class="glass-panel interactive">
+                    <h3 style="color: #fff; font-size: 1.2rem;">Active Capacity</h3>
+                    <div class="metric-value">270</div>
+                    <p class="metric-subtitle">Simultaneous active students enrolled in the system, sustained via a rolling monthly intake of 45 students.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="economics">
+            <div class="grid-2">
+                <div>
+                    <h2 class="text-glow-purple" style="font-size: 2.5rem; margin-bottom: 1rem;">UNIT ECONOMICS</h2>
+                    <p style="font-size: 1.15rem; margin-bottom: 2.5rem; color: var(--text-muted); line-height: 1.6;">A highly lucrative and scalable financial model built on premium pricing, efficient acquisition, and intensive value delivery.</p>
+                    
+                    <div class="glass-panel interactive" style="margin-bottom: 1.5rem;">
+                        <h3 style="color: var(--primary-blue); font-size: 1rem; font-family: 'Inter', sans-serif;">Student Value (Ticket Size)</h3>
+                        <div style="font-size: 2.2rem; font-weight: 700; font-family: 'Orbitron'; color: #fff; margin: 0.5rem 0;">₹3,00,000</div>
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">Fee for the intensive 6-month immersive diploma.</p>
+                    </div>
+
+                    <div class="grid-2-inner">
+                        <div class="glass-panel interactive">
+                            <h3 style="color: var(--primary-purple); font-size: 1rem; font-family: 'Inter', sans-serif;">Monthly Opex</h3>
+                            <div style="font-size: 1.8rem; font-weight: 700; font-family: 'Orbitron'; color: #fff; margin: 0.5rem 0;">₹16 Lakhs</div>
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Covers premium facility rent, faculty compensation, and upkeep.</p>
+                        </div>
+
+                        <div class="glass-panel interactive">
+                            <h3 style="color: var(--accent-teal); font-size: 1rem; font-family: 'Inter', sans-serif;">Estimated CAC</h3>
+                            <div style="font-size: 1.8rem; font-weight: 700; font-family: 'Orbitron'; color: #fff; margin: 0.5rem 0;">₹25,000</div>
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Targeted customer acquisition cost per enrolled student.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-panel interactive">
+                    <h3 style="text-align: center; margin-bottom: 1rem; font-size: 1.2rem; color: #fff;">REVENUE VS PROFIT (FY-2026)</h3>
+                    <div class="chart-container">
+                        <canvas id="financialChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="outcome">
+            <h2 class="text-glow-purple" style="font-size: 2.5rem; margin-bottom: 2.5rem; text-align: center;">THE 6-MONTH METAMORPHOSIS</h2>
+            
+            <div class="glass-panel interactive" style="max-width: 900px; margin: 0 auto; text-align: center;">
+                <h3 style="color: var(--accent-teal); font-size: 1.5rem; margin-bottom: 1.5rem;">Industry-Shattering Proficiency</h3>
+                <p style="font-size: 1.15rem; color: var(--text-main); line-height: 1.8;">
+                    By the end of the 6-month curriculum, our students don't just understand AI theory—they build, deploy, and scale enterprise-grade architectures. 
+                    They emerge equipped with <strong style="color: #fff; text-shadow: 0 0 10px rgba(0, 168, 232, 0.5);">more real-life, practical AI engineering skills than senior employees at top-tier tech companies</strong>.
+                </p>
+
+                <div class="grid-2-inner" style="margin-top: 2.5rem; text-align: left;">
+                    <div style="background: rgba(0, 0, 0, 0.25); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                        <h4 style="color: var(--primary-blue); margin-bottom: 0.8rem; font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 600;">Business & Monetization</h4>
+                        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">We aren't just teaching technical skills. Our students will learn how to build and run a proper business from scratch—focusing on actual revenue generation and how to make money.</p>
+                    </div>
+                    <div style="background: rgba(0, 0, 0, 0.25); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                        <h4 style="color: var(--primary-purple); margin-bottom: 0.8rem; font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 600;">The Premium Standard</h4>
+                        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">Premium means global reach. Throughout the program, students will gain direct exposure to high-ticket international clients and work on real international commercial projects.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="execution">
+            <h2 class="text-glow-blue" style="font-size: 2.5rem; margin-bottom: 2.5rem; text-align: center;">OPERATIONAL STRATEGY</h2>
+            
+            <div class="glass-panel interactive" style="max-width: 1000px; margin: 0 auto; width: 100%;">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Execution Plan</th>
+                                <th>Strategic Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Initial Capex</td>
+                                <td>₹81 Lakhs (PCs) + Infrastructure</td>
+                                <td>₹81 Lakhs secures 90 high-end workstations (₹90k/unit), with additional capital allocated for premium, futuristic facility infrastructure.</td>
+                            </tr>
+                            <tr>
+                                <td>Faculty Roster</td>
+                                <td>Only 5 Elite Teachers</td>
+                                <td>Highly concentrated talent density. Streamlined expert guidance for maximum practical impact and lean opex.</td>
+                            </tr>
+                            <tr>
+                                <td>Payback Period</td>
+                                <td><span style="color: var(--accent-teal); font-weight: 600;">~2.5 Months</span></td>
+                                <td>Full initial capital recovery achieved by Month 3 of full operation.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="infrastructure-note" style="min-height: auto; padding: 2rem 0; text-align: center;">
+            <div class="glass-panel interactive" style="max-width: 800px; margin: 0 auto; border-color: rgba(142, 68, 173, 0.3); box-shadow: 0 10px 40px rgba(142, 68, 173, 0.1);">
+                <h3 style="color: #fff; font-size: 1.4rem; margin-bottom: 1rem; letter-spacing: 2px;">CRITICAL DEPENDENCY</h3>
+                <p style="color: var(--accent-teal); font-size: 1.1rem; font-weight: 500; margin-bottom: 0.5rem;">The environment dictates the output.</p>
+                <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6;">This idea cannot be executed in a traditional classroom setting. It relies entirely on the presence of highly futuristic, immersive infrastructure to condition students for top-tier global performance.</p>
+            </div>
+        </section>
+
+        <section id="footer" style="min-height: 30vh; text-align: center; justify-content: flex-end; padding-bottom: 3rem;">
+            <h1 style="font-size: clamp(2rem, 8vw, 3.5rem); opacity: 0.15; letter-spacing: 5px;">AICANFEEL</h1>
+            <p style="color: var(--text-muted); margin-top: 1rem; font-size: 0.9rem; letter-spacing: 2px;">PITCH DECK CONFIDENTIAL &bull; NEW DELHI</p>
+        </section>
+    </div>
+
+    <script>
+        // --- WEB AUDIO API SYNTHESIZER ---
+        let audioCtx;
+        let audioEnabled = false;
+
+        const audioBtn = document.getElementById('audio-toggle');
+        
+        audioBtn.addEventListener('click', () => {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            audioEnabled = !audioEnabled;
+            
+            if (audioEnabled) {
+                audioBtn.classList.add('active');
+                audioBtn.innerText = 'AUDIO: ONLINE';
+                playSystemInitSound();
+            } else {
+                audioBtn.classList.remove('active');
+                audioBtn.innerText = 'AUDIO: OFFLINE';
+            }
+        });
+
+        function playHoverBeep() {
+            if (!audioEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime); // High pitch beep
+            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        function playRevealSweep() {
+            if (!audioEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const filter = audioCtx.createBiquadFilter();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(50, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.4);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(200, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.4);
+            
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.03, audioCtx.currentTime + 0.1);
+            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
+            
+            osc.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        function playSystemInitSound() {
+            if (!audioEnabled || !audioCtx) return;
+            const osc1 = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc1.type = 'square';
+            osc1.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc1.frequency.setValueAtTime(400, audioCtx.currentTime + 0.1);
+            osc1.frequency.setValueAtTime(600, audioCtx.currentTime + 0.2);
+
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc2.frequency.setValueAtTime(800, audioCtx.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 0.05);
+            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+            
+            osc1.connect(gainNode);
+            osc2.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc1.start(); osc2.start();
+            osc1.stop(audioCtx.currentTime + 0.5);
+            osc2.stop(audioCtx.currentTime + 0.5);
+        }
+
+        // Attach hover sounds
+        document.querySelectorAll('.interactive').forEach(el => {
+            el.addEventListener('mouseenter', playHoverBeep);
+        });
+
+        // --- UI & PARALLAX ---
+        
+        // Hide scroll indicator on mobile
+        if(window.innerWidth > 768) {
+            document.querySelector('.scroll-indicator').style.display = 'block';
+        }
+
+        const canvas = document.getElementById('neuronCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        let mouse = { x: null, y: null };
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            particles = [];
+            // Less particles on mobile for performance
+            const density = window.innerWidth < 768 ? 20000 : 15000;
+            const particleCount = Math.floor((width * height) / density);
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    radius: Math.random() * 1.5 + 0.5
+                });
+            }
+        }
+
+        window.addEventListener('resize', initCanvas);
+        
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+        
+        // Touch support for parallax
+        window.addEventListener('touchmove', (e) => {
+            if(e.touches.length > 0) {
+                mouse.x = e.touches[0].clientX;
+                mouse.y = e.touches[0].clientY;
+            }
+        }, {passive: true});
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            
+            let parallaxX = 0;
+            let parallaxY = 0;
+            if (mouse.x !== null) {
+                parallaxX = (mouse.x - width / 2) * 0.02;
+                parallaxY = (mouse.y - height / 2) * 0.02;
+            }
+
+            for (let i = 0; i < particles.length; i++) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                if (mouse.x != null) {
+                    let dx = mouse.x - p.x;
+                    let dy = mouse.y - p.y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 100) {
+                        p.x -= dx * 0.01;
+                        p.y -= dy * 0.01;
+                    }
+                }
+
+                if (p.x < 0 || p.x > width) p.vx *= -1;
+                if (p.y < 0 || p.y > height) p.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(p.x + parallaxX, p.y + parallaxY, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 168, 232, 0.4)';
+                ctx.fill();
+
+                for (let j = i + 1; j < particles.length; j++) {
+                    let p2 = particles[j];
+                    let dx = p.x - p2.x;
+                    let dy = p.y - p2.y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+
+                    // Reduced connection distance on mobile for performance
+                    const connectDist = window.innerWidth < 768 ? 80 : 120;
+
+                    if (dist < connectDist) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0, 168, 232, ${0.15 - dist/800})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(p.x + parallaxX, p.y + parallaxY);
+                        ctx.lineTo(p2.x + parallaxX, p2.y + parallaxY);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateCanvas);
+        }
+        
+        initCanvas();
+        animateCanvas();
+
+        // Intersection Observer for Scroll Animations & Audio
+        const sections = document.querySelectorAll('section');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    if (!entry.target.classList.contains('visible')) {
+                        entry.target.classList.add('visible');
+                        playRevealSweep(); // Play sound on reveal
+                    }
+                }
+            });
+        }, { threshold: 0.15 });
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        // Chart.js Initialization
+        const chartCtx = document.getElementById('financialChart').getContext('2d');
+        
+        const gradientRev = chartCtx.createLinearGradient(0, 0, 0, 400);
+        gradientRev.addColorStop(0, 'rgba(0, 168, 232, 0.85)');
+        gradientRev.addColorStop(1, 'rgba(0, 168, 232, 0.1)');
+
+        const gradientProf = chartCtx.createLinearGradient(0, 0, 0, 400);
+        gradientProf.addColorStop(0, 'rgba(142, 68, 173, 0.85)');
+        gradientProf.addColorStop(1, 'rgba(142, 68, 173, 0.1)');
+
+        new Chart(chartCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                datasets: [
+                    {
+                        label: 'Gross Revenue (₹ Cr)',
+                        data: [1.5, 3.3, 3.3, 3.3],
+                        backgroundColor: gradientRev,
+                        borderColor: '#00a8e8',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        barPercentage: 0.7
+                    },
+                    {
+                        label: 'Net Profit (₹ Cr)',
+                        data: [0.5, 2.8, 2.8, 2.8],
+                        backgroundColor: gradientProf,
+                        borderColor: '#8e44ad',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        barPercentage: 0.7
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                color: '#e2e8f0',
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#94a3b8', font: { family: 'Inter' } },
+                        border: { display: false }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { family: 'Inter', size: 13 } },
+                        border: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: '#e2e8f0', font: { family: 'Inter', size: 13 }, usePointStyle: true, boxWidth: 8 }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 18, 25, 0.9)',
+                        titleFont: { family: 'Inter', size: 13 },
+                        bodyFont: { family: 'Inter', size: 13 },
+                        padding: 12,
+                        borderColor: 'rgba(0, 168, 232, 0.3)',
+                        borderWidth: 1
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
